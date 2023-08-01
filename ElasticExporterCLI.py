@@ -22,18 +22,17 @@ def main():
   if settings['debug']:
     print ("Loaded settings : %s" % settings)
 
-
   options = docopt(__doc__)
 
   if options['--index']:
     settings['index_name'] = options['--index']
 
-  if options['--no_group']:
+  if options.get('--no_group'):
     settings['NoGroup'] = True
   else:
     settings['NoGroup'] = False
 
-  if options['--query-file']:
+  if options.get('--query-file'):
     with open (options['--query-file'], 'rb') as f:
       settings['query_filter'] = json.load(f)
     if settings['debug']:
@@ -43,15 +42,14 @@ def main():
     settings['query_filter'] = { "bool": { "filter": [ { "match_all": {} } ], } }
 
   #folder to save exported ndjson files
-  if options['--backup-folder']:
+  if options.get('--backup-folder'):
     settings['backup_folder'] = options['--backup-folder']
 
 
   if settings['debug']:
     print (settings)
-
+    
   ElasticExporter.ProcessIndex(settings)
-
 
 if __name__ == "__main__":
   main()

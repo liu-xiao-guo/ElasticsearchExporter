@@ -3,10 +3,10 @@
       "filter": [
         {
           "range": {
-            "@timestamp": {
+            "timestamp": {
               "format": "strict_date_optional_time",
-              "gte": "2023-07-10T04:00:00.000Z",
-              "lte": "2023-07-10T07:00:00.000Z"
+              "gte": "2023-07-25T04:00:00.000Z",
+              "lte": "2023-07-28T07:00:00.000Z"
             }
           }
 	}

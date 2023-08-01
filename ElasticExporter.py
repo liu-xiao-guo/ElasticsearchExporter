@@ -104,7 +104,7 @@ def FinishFolder(settings, TotalEventCount):
 
 
 def SearchGroup(es, index_name, settings, field_filter, TotalExported = 0, ExcludeField = False, AllItems = False ):
-  print ("Exporting : %s for index %s" % ( field_filter, index_name ) )
+  print ('Exporting : "%s" for index "%s"' % ( field_filter, index_name ) )
  
   if AllItems:
     ForcePIT = True
@@ -115,7 +115,6 @@ def SearchGroup(es, index_name, settings, field_filter, TotalExported = 0, Exclu
     search_q = {
       "size" : 10000,
       "query" : settings['query_filter'] }
-
   else:
     search_q = {
       "size" : 10000,
@@ -224,7 +223,7 @@ def WriteResults(settings, field_filter, expected, results, IgnoreCount = False,
 def ProcessGroup(es, index_name, settings, group, ExcludeField = False, AllItems = False ):
   #search and write results to disk
   message = SearchGroup(es, index_name, settings, group, ExcludeField = ExcludeField, AllItems = AllItems )
-
+ 
   source = settings['fullpath'] + '/' + group + '.ndjson'
 
   if message['failed']:
@@ -248,10 +247,10 @@ def ProcessGroup(es, index_name, settings, group, ExcludeField = False, AllItems
 
 
 def ExportIndex(es, settings, TimeSeries, ExcludeField = False, AllItems = True, Debug = False):
-  settings['fullpath'] = settings['backup_folder'] + '/' + settings['index_name']
-
-  if 'NoGroup' in settings.keys():
-    if settings['NoGroup'] != False:
+  # settings['fullpath'] = settings['backup_folder'] + '/' + settings['index_name']
+  
+  if 'NoGroup' in settings.keys():        
+    if settings['NoGroup'] == True:
       print ("No time field - based on NoGroup in settings")
       ExcludeField = False #All in one export
       AllItems = True
@@ -262,10 +261,12 @@ def ExportIndex(es, settings, TimeSeries, ExcludeField = False, AllItems = True,
   #Create a check to see if all documents in this index have been exported
   if settings['debug']:
     print ("ExportIndex : %s" % settings)
+    
   MakeFolders(settings)
+  print("The fold has been created!")
 
   #Get a list of groups + group not exists
-  if not AllItems:
+  if not AllItems:    
     GroupList = GetListGroups(es, settings['index_name'], settings)
 
     if settings['debug']:
@@ -287,6 +288,8 @@ def ExportIndex(es, settings, TimeSeries, ExcludeField = False, AllItems = True,
   group = settings['FileNameOther']
   file_ndjson = settings['fullpath'] + '/' + group + '.ndjson'
   file_sha = settings['fullpath'] + '/' + group + '.checksums'
+  
+  # print("group: ", group, file_ndjson, file_sha)
   if not os.path.exists( file_sha ):
     if os.path.exists( file_ndjson ):
       print ("Removing file %s and re-exporting results" % file_ndjson) 
@@ -296,10 +299,11 @@ def ExportIndex(es, settings, TimeSeries, ExcludeField = False, AllItems = True,
 #export events for an index
 def ProcessIndex(settings, AllItems = True):
     es = settings['es']
-
-    settings['fullpath'] = settings['backup_folder'] + '/' + settings['index_name']
-    settings['all_checksum']   = settings['backup_folder'] + '/' + settings['index_name'] + '/all.checksums'
-
+    
+    directory = os.getcwd()
+    settings['fullpath'] = directory + '/' + settings['backup_folder'] + '/' + settings['index_name']
+    settings['all_checksum'] = directory + '/' + settings['backup_folder'] + '/' + settings['index_name'] + '/all.checksums'
+  
     # Tests to see if script should be called
     # 1. check if the index exists
     # 2. check for all.checksums in the folder
@@ -320,7 +324,6 @@ def ProcessIndex(settings, AllItems = True):
         print ("found an all.checksums file, skipping this folder")
     else:
       print ("Index does not exist : %s" % settings['index_name'] )
-
 
 
 if __name__ == "__main__":
